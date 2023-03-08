@@ -1,0 +1,46 @@
+import { Schema, model, connect } from 'mongoose';
+
+interface IAuthor {
+    name: string;
+    email: string;
+    age: number;
+}
+interface IBook {
+  title: string;
+  author: IAuthor;
+  thematics?: string;
+}
+
+const authorSchema = new Schema<IAuthor>({
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    age: Number
+  });
+const bookSchema = new Schema<IBook>({
+    title: { type: String, required: true },
+    author: { type: authorSchema, required: true },
+    thematics: String
+});
+
+const Author = model<IAuthor>('Author', authorSchema);
+const Book = model<IBook>('Book', bookSchema);
+
+run().catch(err => console.log(err));
+
+async function run() {
+  await connect('mongodb://127.0.0.1:27017/test');
+
+  const author = new Author({
+    name: 'Paco',
+    email: 'paco@gmail.com',
+    age: 22
+  });
+  const book = new Book({
+    title: 'Programming book',
+    author: author,
+  });
+  await author.save();
+  await book.save();
+
+  console.log(book.author); 
+}
